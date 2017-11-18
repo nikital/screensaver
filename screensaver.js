@@ -1,72 +1,50 @@
 Number.prototype.mod = function (n) {
     return ((this % n) + n) % n;
 };
-Math.floorToZero = function (n) {
-    if (n < 0) return Math.ceil (n);
-    return Math.floor (n);
-};
-Math.sign = function (n) {
-    if (n == 0) return 1;
-    return Math.abs (n) / n;
+Math.roundInDirection = function (n, direction) {
+    if (direction < 0) return Math.floor (n);
+    return Math.ceil (n);
 };
 
 (() => {
-    let ball = document.getElementsByClassName ("ball")[0];
-    let x = 300,
-        y = 300,
-        v = 2,
-        dx, dy;
+    const V = 100 / 1000,
+          MIN_DIST = 2000, MAX_DIST = 6000,
+          ANGLE_VARIANCE = 0.25, // Between 0 and 1
+          ABORT_TIME = 1.2 * 1000,
+          ABORT_DISTANCE = 50,
+          ABORT_JITTER = 5;
 
-    let manuevering = false,
-        manueveringRadius = 100,
-        manueveringAngle, manueveringTargetAngle,
-        w, mx, my;
-    function startManuever ()
-    {
-        let side = Math.sign (Math.random ());
-        let mdx = -side * dy,
-            mdy = +side * dx;
+    const ball = document.getElementsByClassName ("ball")[0];
 
-        manueveringAngle = Math.atan2 (-mdy, -mdx);
-        manueveringTargetAngle = manueveringAngle + side * Math.PI;
+    let x, y, dx, dy,
+        width, height,
+        abortRemaining = 0;
 
-        mx = x + mdx * manueveringRadius;
-        my = y + mdy * manueveringRadius;
-        w = side * 1 / manueveringRadius;
-
-        manuevering = true;
-    }
-    function finishManuever ()
-    {
-        manuevering = false;
-    }
-
-    let width, height;
-    function getRandomAngle () {
-        const slope = 0.2, segments = 4;
-        // Plug this equation into desmos to understand :)
-        let random = Math.random ();
-        let discreteRandom = slope * random + (1 - slope) * Math.floor (segments * random) / segments;
+    function getRandomDiagonalAngle () {
+        const slope = ANGLE_VARIANCE, segments = 4,
+              // Plug this equation into desmos to understand :)
+              random = Math.random (),
+              discreteRandom = slope * random + (1 - slope) * Math.floor (segments * random) / segments;
         return 2 * Math.PI * discreteRandom + Math.PI / 4;
     }
     function calculateDirection () {
-        // const dist = 3000 * Math.random () + 2000;
-        const dist = width;
-
-        let angle = getRandomAngle ();
-        // Prefer more diagonal angles
-        let tx = x + Math.cos (angle) * dist,
-            ty = y + Math.sin (angle) * dist,
-            qx = Math.round (tx / width) * width - x,
-            qy = Math.round (ty / height) * height - y,
-            qdistance = Math.sqrt (qx * qx + qy * qy);
+        const dist = (MAX_DIST - MIN_DIST) * Math.random () + MIN_DIST,
+              angle = getRandomDiagonalAngle (),
+              // Choose a point somewhere away from us
+              tx = x + Math.cos (angle) * dist,
+              ty = y + Math.sin (angle) * dist,
+              // Quantize it to the nearest corner
+              qx = Math.round (tx / width) * width - x,
+              qy = Math.round (ty / height) * height - y,
+              qdistance = Math.sqrt (qx * qx + qy * qy);
+        // calculate direction to reach that corner
         dx = qx / qdistance;
         dy = qy / qdistance;
-        manuevering = false;
     }
     function calculateClientDimentions () {
-        width = document.body.clientWidth - ball.clientWidth;
-        height = document.body.clientHeight - ball.clientHeight;
+        const world = document.getElementsByClassName ("world")[0];
+        width = world.clientWidth - ball.clientWidth;
+        height = world.clientHeight - ball.clientHeight;
         x = Math.random () * width;
         y = Math.random () * height;
         calculateDirection ();
@@ -74,24 +52,28 @@ Math.sign = function (n) {
     calculateClientDimentions ();
 
     function nextCollisionDistance () {
-        let nextx = Math.floorToZero (x / width + Math.sign (dx)) * width - x;
-        let nexty = Math.floorToZero (y / height + Math.sign (dy)) * height - y;
-        let d = Math.sqrt (nextx * nextx + nexty * nexty);
+        const nextx = Math.roundInDirection (x / width, dx) * width - x,
+              nexty = Math.roundInDirection (y / height, dy) * height - y,
+              d = Math.sqrt (nextx * nextx + nexty * nexty);
         if ((nextx * dx + nexty * dy) / d > 0.999)
             return d;
         return Infinity;
     }
 
-    function frame (ms) {
-        if (!manuevering) {
-            x += v * dx;
-            y += v * dy;
-            if (nextCollisionDistance () < manueveringRadius) startManuever ();
+    let prevTime = 0;
+    function frame (time) {
+        const dt = time - prevTime;
+        prevTime = time;
+        if (abortRemaining <= 0) {
+            x += V * dx * dt;
+            y += V * dy * dt;
+            if (nextCollisionDistance () < ABORT_DISTANCE) abortRemaining = ABORT_TIME;
         } else {
-            manueveringAngle += v * w;
-            x = mx + Math.cos (manueveringAngle) * manueveringRadius;
-            y = my + Math.sin (manueveringAngle) * manueveringRadius;
-            if (w > 0 ? (manueveringAngle > manueveringTargetAngle) : (manueveringAngle < manueveringTargetAngle))
+            const jitterAngle = Math.random() * Math.PI * 2;
+            x += Math.cos (jitterAngle) * ABORT_JITTER;
+            y += Math.sin (jitterAngle) * ABORT_JITTER;
+            abortRemaining -= dt;
+            if (abortRemaining <= 0)
                 calculateDirection ();
         }
 
@@ -113,5 +95,6 @@ Math.sign = function (n) {
         requestAnimationFrame (frame);
     }
 
-    frame ();
+    frame (0);
+    window.addEventListener ("resize", calculateClientDimentions);
 })();

@@ -4,17 +4,18 @@
         <meta charset="utf-8">
         <title>Screensaver</title>
         <style>
-         html {
+         html, body {
              padding: 0;
              margin: 0;
+             background: #555;
          }
-         body {
-             width: calc(100vw - 10vmin - 10px);
-             height: calc(100vh - 10vmin - 10px);
+         .world {
+             width: calc(100vw - 10vmin - 20px);
+             height: calc(100vh - 10vmin - 20px);
              background: black;
-             border: 5px red solid;
+             border: 5px #333 solid;
              padding: 0;
-             margin: 5vmin 5vmin;
+             margin: calc(5vmin + 5px) calc(5vmin + 5px);
              overflow: hidden;
          }
          .ball {
@@ -28,7 +29,9 @@
         </style>
     </head>
     <body>
-        <div class="ball" />
+        <div class="world">
+            <div class="ball" />
+        </div>
         <script src="screensaver.js"></script>
     </body>
 </html>
