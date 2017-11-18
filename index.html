@@ -4,10 +4,17 @@
         <meta charset="utf-8">
         <title>Screensaver</title>
         <style>
-         html, body {
-             background: black;
+         html {
              padding: 0;
              margin: 0;
+         }
+         body {
+             width: calc(100vw - 10vmin - 10px);
+             height: calc(100vh - 10vmin - 10px);
+             background: black;
+             border: 5px red solid;
+             padding: 0;
+             margin: 5vmin 5vmin;
              overflow: hidden;
          }
          .ball {

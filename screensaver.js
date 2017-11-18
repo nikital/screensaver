@@ -65,8 +65,8 @@ Math.sign = function (n) {
         manuevering = false;
     }
     function calculateClientDimentions () {
-        width = document.documentElement.clientWidth - ball.clientWidth;
-        height = document.documentElement.clientHeight - ball.clientHeight;
+        width = document.body.clientWidth - ball.clientWidth;
+        height = document.body.clientHeight - ball.clientHeight;
         x = Math.random () * width;
         y = Math.random () * height;
         calculateDirection ();
@@ -105,7 +105,7 @@ Math.sign = function (n) {
             realy = height - realy;
 
         const colors = ["teal", "tomato", "seagreen", "hotpink"];
-        ball.style.position = "absolute";
+        ball.style.position = "relative";
         ball.style.left = (realx) + "px";
         ball.style.top = (realy) + "px";
         ball.style.background = colors[(stepsx + stepsy).mod (colors.length)];
