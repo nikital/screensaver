@@ -21,16 +21,43 @@
          .ball {
              background: teal;
 
-             display: block;
+             display: flex;
              width: 120px;
              height: 80px;
              border-radius: 50%;
+
+             justify-content: center;
+         }
+         .dvd {
+             align-self: center;
+             text-align: center;
+         }
+         .dvd .title {
+             font: bold 40px sans-serif;
+         }
+
+         .dvd .subtitle {
+             font: 20px sans-serif;
+             line-height: 0;
+             margin-top: 3px;
+         }
+         .noselect {
+             -webkit-touch-callout: none;
+             -webkit-user-select: none;
+             -khtml-user-select: none;
+             -moz-user-select: none;
+             user-select: none;
          }
         </style>
     </head>
     <body>
         <div class="world">
-            <div class="ball" />
+            <div class="ball">
+                <div class="dvd noselect">
+                    <div class="title">DVD</div>
+                    <div class="subtitle">video</div>
+                </div>
+            </div>
         </div>
         <script src="screensaver.js"></script>
     </body>
