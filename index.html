@@ -1,7 +1,8 @@
 <!doctype html>
 <html>
     <head>
-        <meta charset="utf-8">
+       <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Screensaver</title>
         <style>
          html, body {
@@ -27,6 +28,7 @@
              border-radius: 50%;
 
              justify-content: center;
+             transform: rotate(0deg); /* Avoid text jitter on movement */
          }
          .dvd {
              align-self: center;
@@ -34,12 +36,12 @@
          }
          .dvd .title {
              font: bold 40px sans-serif;
+             line-height: 40px;
          }
 
          .dvd .subtitle {
-             font: 20px sans-serif;
-             line-height: 0;
-             margin-top: 3px;
+             font: oblique 20px sans-serif;
+             line-height: 10px;
          }
          .noselect {
              -webkit-touch-callout: none;
